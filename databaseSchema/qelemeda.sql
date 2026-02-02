@@ -1,0 +1,54 @@
+CREATE DATABASE IF NOT EXISTS qelemeda;
+
+-- Use the database
+USE qelemeda;
+
+CREATE TABLE providers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    company_name VARCHAR(150) NOT NULL,
+    license_number VARCHAR(100) UNIQUE NOT NULL,
+    slug VARCHAR(150) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE catagories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    provider_id BIGINT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    icon LONGBLOB,
+    description TEXT,
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE services (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    provider_id BIGINT NOT NULL,
+    catagory_id BIGINT NOT NULL,
+    
+    service_name VARCHAR(150) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    vat DECIMAL(5,2) DEFAULT 0,
+    discount DECIMAL(10,2) DEFAULT 0,
+    
+    total_price DECIMAL(10,2) GENERATED ALWAYS AS 
+    ((price + (price * vat / 100)) - discount) STORED,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE,
+    FOREIGN KEY (catagory_id) REFERENCES catagories(id) ON DELETE CASCADE
+);
+
+
+drop table services;
+
+select * from services;
+
+select * from catagories;
